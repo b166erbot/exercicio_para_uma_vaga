@@ -1,9 +1,9 @@
-# coverage erase
+coverage erase
 isort -sp src -y
 echo
 coverage run --source=src -m unittest discover -s tests
 echo
-# coverage html
+coverage html
 coverage report
 echo
 radon cc -as src
