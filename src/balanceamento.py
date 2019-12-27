@@ -1,7 +1,49 @@
 """Módulo onde tratará o balanceamento."""
 
 from sys import argv
-from typing import Iterable
+from typing import Iterable, Union
+
+
+class Usuario:
+    """Classe que representa o usuário final."""
+
+    def __init__(self, ttask):
+        """Método de inicialização."""
+        self.ttask = ttask
+
+    def consumir(self):
+        """Método que simula a execução das tarefas do usuário."""
+        self.ttask -= 1
+
+
+class Servidor:
+    """Classe que representa o servidor."""
+
+    umax = 1
+    ttask = 1
+
+    def __init__(self):
+        """Método de inicialização."""
+        self.users = [Usuario(self.ttask)]
+        self.tick = 0
+
+    def __repr__(self) -> str:
+        """Método que retorna o número de usuários ativos no server."""
+        quantidade = f"{len(self.users)}"
+        self.tick += 1
+        self._remover_automaticamente()
+        return quantidade
+
+    def add(self):
+        """Método que adiciona um Usuario no servidor."""
+        if len(self.users) < self.umax:
+            self.users.append(Usuario(self.ttask))
+
+    def _remover_automaticamente(self):
+        """Método que remove os usuários caso não haja mais tarefas."""
+        for usuario in self.users:
+            usuario.consumir()
+        self.users = list(filter(lambda x: x.ttask > 0, self.users))
 
 
 class Gerenciador:
@@ -13,14 +55,14 @@ class Gerenciador:
         """Método de inicialização."""
         self.servers = []
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Método que retorna o número de pessoas ativas no server."""
         string_formatada = f"{','.join(map(repr, self.servers))}" or '0'
         removidos = self._remover_automaticamente()
         self._somar_tick(removidos)
         return string_formatada
 
-    def _server_com_espaco(self):
+    def _server_com_espaco(self) -> Union[Servidor, None]:
         """Método que retorna um server com espaço ou None."""
         filtro = filter(lambda x: len(x.users) < x.umax, self.servers)
         return next(filtro, None)
@@ -50,48 +92,6 @@ class Gerenciador:
         while self.servers:
             print(self)
         print(self, self.tick, sep='\n')
-
-
-class Servidor:
-    """Classe que representa o servidor."""
-
-    umax = 1
-    ttask = 1
-
-    def __init__(self):
-        """Método de inicialização."""
-        self.users = [Usuario(self.ttask)]
-        self.tick = 0
-
-    def __repr__(self):
-        """Método que retorna o número de usuários ativos no server."""
-        quantidade = f"{len(self.users)}"
-        self.tick += 1
-        self._remover_automaticamente()
-        return quantidade
-
-    def add(self):
-        """Método que adiciona um Usuario no servidor."""
-        if len(self.users) < self.umax:
-            self.users.append(Usuario(self.ttask))
-
-    def _remover_automaticamente(self):
-        """Método que remove os usuários caso não haja mais tarefas."""
-        for usuario in self.users:
-            usuario.consumir()
-        self.users = list(filter(lambda x: x.ttask > 0, self.users))
-
-
-class Usuario:
-    """Classe que representa o usuário final."""
-
-    def __init__(self, ttask):
-        """Método de inicialização."""
-        self.ttask = ttask
-
-    def consumir(self):
-        """Método que simula a execução das tarefas do usuário."""
-        self.ttask -= 1
 
 
 def ler_arquivo(nome: str) -> Iterable:
